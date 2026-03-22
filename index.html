@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your fitness journey with multiple workout plans, exercises, and progress tracking">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Workout Tracker">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Workout Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    .history-duration {
+        color: #667eea;
+        font-size: 0.97em;
+        margin-left: 8px;
+        font-weight: 500;
+        vertical-align: middle;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Workout Tracker 💪</h1>
+            <p class="subtitle">Track your fitness journey</p>
+            <br/>
+            <div class="header-controls">
+                <button id="installButton" class="btn btn-success btn-small" onclick="installPWA()" style="display: none; max-width: 200px; margin-right: 10px;">
+                    📲 Install App
+                </button>
+                <button class="btn btn-small" onclick="showCreatePlanModal()">+ New Plan</button>
+                <button class="btn btn-small btn-secondary" onclick="showImportModal()">📥 Import</button>
+                <button class="btn btn-small btn-secondary" onclick="exportData()">📤 Export</button>
+                <button class="btn btn-small btn-secondary" onclick="switchTab('calendar')">📅 Calendar</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <h3 style="margin-bottom: 20px; color: #667eea;">Workout Plans</h3>
+                <div class="plan-list" id="planList">
+                    <!-- Plans will be loaded here -->
+                </div>
+            </div>
+
+            <div class="content">
+                <div id="noPlanSelected" class="empty-state">
+                    <div class="empty-state-icon">🏋️</div>
+                    <h2>No Plan Selected</h2>
+                    <p>Create a new workout plan or select one from the sidebar</p>
+                </div>
+
+                <div id="planView" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 id="currentPlanName" style="color: #667eea;"></h2>
+                        <div>
+                            <button class="btn btn-small btn-secondary" onclick="editCurrentPlan()">✏️ Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteCurrentPlan()">🗑️ Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('exercises')">Exercises</button>
+                        <button class="tab" onclick="switchTab('workout')">Log Workout</button>
+                        <button class="tab" onclick="switchTab('calendar')">Calendar</button>
+                        <button class="tab" onclick="switchTab('history')">History</button>
+                    </div>
+
+                    <div id="exercisesTab" class="tab-content active">
+                        <button class="btn" onclick="showAddExerciseModal()" style="max-width: 300px;">+ Add Exercise</button>
+                        <div class="exercise-list" id="exerciseList"></div>
+                    </div>
+
+                    <div id="workoutTab" class="tab-content">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="totalWorkouts">0</div>
+                                <div class="stat-label">Total Workouts</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="thisWeek">0</div>
+                                <div class="stat-label">This Week</div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success" onclick="startWorkout()" style="max-width: 300px; margin-bottom: 20px;">Start Workout</button>
+                        <div id="workoutLogger" style="display: none;">
+                            <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;">
+                                <h3 style="margin-bottom: 10px;">Today's Workout</h3>
+                                <span style="font-size:1.1em;color:#222;background:#f3f3fa;padding:4px 12px;border-radius:8px;">
+                                    <span id="workoutTimerDisplay">0:00</span>
+                                </span>
+                            </div>
+                            <div id="lastWorkoutInfo"></div>
+                            <div id="workoutExercises"></div>
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button class="btn btn-success" onclick="saveWorkout()">Save Workout</button>
+                                <button class="btn btn-secondary" onclick="cancelWorkout()">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="calendarTab" class="tab-content">
+                        <div class="calendar-container">
+                            <div class="calendar-header">
+                                <div class="calendar-nav">
+                                    <button onclick="changeMonth(-1)">‹</button>
+                                    <button onclick="changeMonth(1)">›</button>
+                                </div>
+                                <div class="calendar-title" id="calendarTitle"></div>
+                                <button class="btn btn-small" onclick="goToToday()">Today</button>
+                            </div>
+                            <div class="calendar-grid" id="calendarGrid"></div>
+                        </div>
+                        <div id="selectedDayWorkouts"></div>
+                    </div>
+
+                    <div id="historyTab" class="tab-content">
+                        <div style="max-width:100%;margin-bottom:12px;display:flex;align-items:center;gap:12px;">
+                            <label for="progressionExerciseSelect" style="font-weight:500;">Exercise:</label>
+                            <select id="progressionExerciseSelect" style="min-width:160px;padding:4px 8px;border-radius:6px;border:1px solid #ccc;"></select>
+                        </div>
+                        <div style="max-width:100%;margin-bottom:24px;">
+                            <canvas id="progressionChart" height="220" style="background:#fff;border-radius:12px;box-shadow:0 2px 8px #0001;"></canvas>
+                        </div>
+                        <div id="historyList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Plan Modal -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="planModalTitle">Create New Plan</h2>
+                <button class="close-btn" onclick="closePlanModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Plan Name</label>
+                <input type="text" id="planNameInput" placeholder="e.g., Push Day, Full Body">
+            </div>
+            <div class="form-group">
+                <label>Description (Optional)</label>
+                <textarea id="planDescInput" placeholder="Notes about this workout plan..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Assign Weekday</label>
+                <select id="planWeekdayInput">
+                    <option value="">-- None --</option>
+                    <option value="0">Sunday</option>
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                </select>
+            </div>
+            <button class="btn" onclick="savePlan()">Save Plan</button>
+        </div>
+    </div>
+
+    <!-- Add Exercise Modal -->
+    <div id="exerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Exercise</h2>
+                <button class="close-btn" onclick="closeExerciseModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Exercise Name</label>
+                <input type="text" id="exerciseNameInput" placeholder="e.g., Bench Press">
+            </div>
+            <div class="form-group">
+                <label>Target Sets</label>
+                <input type="number" id="exerciseSetsInput" value="3" min="1">
+            </div>
+            <div class="form-group">
+                <label>Target Reps</label>
+                <input type="number" id="exerciseRepsInput" value="10" min="1">
+            </div>
+            <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea id="exerciseNotesInput" placeholder="Form cues, variations, etc..."></textarea>
+            </div>
+            <button class="btn" onclick="saveExercise()">Add Exercise</button>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Data</h2>
+                <button class="close-btn" onclick="closeImportModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Select JSON File</label>
+                <input type="file" id="importFileInput" accept=".json">
+            </div>
+            <button class="btn" onclick="importData()">Import</button>
+        </div>
+    </div>
+
+    <!-- Workout Detail Modal -->
+    <div id="workoutDetailModal" class="modal">
+        <div class="modal-content workout-detail-modal">
+            <div class="modal-header">
+                <h2 id="workoutDetailDate"></h2>
+                <button class="close-btn" onclick="closeWorkoutDetailModal()">&times;</button>
+            </div>
+            <div id="workoutDetailContent"></div>
+        </div>
+    </div>
+
+    <script src="chartjs-loader.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
