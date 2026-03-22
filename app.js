@@ -67,13 +67,29 @@ function changeTheme(theme) {
 
     // Update active button
     document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.theme-${theme}`).classList.add('active');
+    const btn = document.querySelector(`.theme-${theme}`);
+    if (btn) btn.classList.add('active');
+}
+
+function applySystemTheme() {
+    // Only apply if no theme is saved
+    const savedTheme = localStorage.getItem('workout-theme');
+    if (!savedTheme || savedTheme === 'default') {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'default');
+        }
+    }
 }
 
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem('workout-theme') || 'default';
     if (savedTheme !== 'default') {
         document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+        applySystemTheme();
     }
 
     // Update active button
@@ -88,6 +104,13 @@ function loadSavedTheme() {
 (async () => {
     try {
         loadSavedTheme();
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            const savedTheme = localStorage.getItem('workout-theme') || 'default';
+            if (savedTheme === 'default') {
+                applySystemTheme();
+            }
+        });
         await initDB();
         await loadPlans();
         console.log('App initialized successfully');
