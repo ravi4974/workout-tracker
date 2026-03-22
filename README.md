@@ -4,19 +4,19 @@ A Progressive Web App for tracking your fitness journey with multiple workout pl
 
 ## Features
 
-✅ **Multiple Workout Plans** - Create and manage different workout routines
-✅ **Exercise Tracking** - Log sets, reps, and weights for each exercise
-✅ **Calendar View** - Visual calendar showing workout history
-✅ **Progress Tracking** - View statistics, workout history, and interactive progression graphs
-✅ **Progression Graphs** - Visualize your weight and reps progression for each exercise in the History tab, with a dropdown to select the exercise
-✅ **Smart Prefilling** - Automatically loads previous workout data
-✅ **Minimal, Professional Design** - Clean, modern, and optimized for mobile
-✅ **Default Minimal Theme** - Focused, distraction-free interface
+✅ **Multiple Workout Plans** - Create and manage different workout routines\
+✅ **Exercise Tracking** - Log sets, reps, and weights for each exercise\
+✅ **Calendar View** - Visual calendar showing workout history\
+✅ **Progress Tracking** - View statistics, workout history, and interactive progression graphs\
+✅ **Progression Graphs** - Visualize your weight and reps progression for each exercise in the History tab, with a dropdown to select the exercise\
+✅ **Smart Prefilling** - Automatically loads previous workout data\
+✅ **Minimal, Professional Design** - Clean, modern, and optimized for mobile\
+✅ **Default Minimal Theme** - Focused, distraction-free interface\
 <!-- Theme switching is hidden by default for a more minimal look -->
-✅ **Offline Support** - Works without internet connection
-✅ **Mobile-Friendly** - Fully responsive design
-✅ **Installable** - Install as a native app on your device
-✅ **Data Export/Import** - Backup and restore your workout data
+✅ **Offline Support** - Works without internet connection\
+✅ **Mobile-Friendly** - Fully responsive design\
+✅ **Installable** - Install as a native app on your device\
+✅ **Data Export/Import** - Backup and restore your workout data\
 
 ## Installation
 
